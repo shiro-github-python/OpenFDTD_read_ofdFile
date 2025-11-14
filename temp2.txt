@@ -1,0 +1,90 @@
+import struct
+import numpy as np
+
+# ---- 読み込みに必要なパラメータ（C側と同じ値を指定） ----
+Nx = 0      # ※実際の値に置き換える
+NN = 0
+NFreq1 = 0
+NFreq2 = 0
+NFreq3 = 0
+NFeed = 0
+NSurface = 0
+
+# -----------------------------------------------------------
+filename = "output.bin"
+
+with open(filename, "rb") as f:
+    # 1. Title (256 char)
+    Title = f.read(256).decode("ascii", errors="ignore").rstrip("\x00")
+
+    # 2. int Nx
+    Nx = struct.unpack("i", f.read(4))[0]
+
+    # 3. int64_t NN
+    NN = struct.unpack("q", f.read(8))[0]
+
+    # 4. double Freq2[NFreq2]
+    Freq2 = np.frombuffer(f.read(8 * NFreq2), dtype=np.float64)
+
+    # 5. d_complex_t Zin[NFeed * NFreq1]
+    # d_complex_t = { double r; double i; } → 16 バイト
+    Zin_raw = np.frombuffer(
+        f.read(16 * NFeed * NFreq1),
+        dtype=[("r", "float64"), ("i", "float64")]
+    )
+    Zin = Zin_raw["r"] + 1j * Zin_raw["i"]
+
+    # 6. double Freq3[NFreq3]
+    Freq3 = np.frombuffer(f.read(8 * NFreq3), dtype=np.float64)
+
+    # 7. SurfaceEx, SurfaceEy (10 回ループ)
+    SurfaceEx = []
+    SurfaceEy = []
+
+    for _ in range(10):
+        ex = np.frombuffer(
+            f.read(16 * NSurface),
+            dtype=[("r", "float64"), ("i", "float64")]
+        )
+        ey = np.frombuffer(
+            f.read(16 * NSurface),
+            dtype=[("r", "float64"), ("i", "float64")]
+        )
+        SurfaceEx.append(ex["r"] + 1j * ex["i"])
+        SurfaceEy.append(ey["r"] + 1j * ey["i"])
+
+    # 8. planewave_t 構造体
+    # typedef struct {
+    #     double theta, phi;
+    #     double ei[3], hi[3];
+    #     double ri[3], r0[3], ai;
+    #     int pol;
+    # } planewave_t;
+    #
+    # double 14 個 + int 1 →  (14*8) + 4 = 116 バイト
+    # (C のアライメントに注意：通常 8 の倍数 → 120 バイトとなることが多い)
+
+    # ここでは struct のパッキングを合わせる
+    planewave_fmt = "dd" + "ddd" + "ddd" + "ddd" + "ddd" + "d" + "i"
+    planewave_size = struct.calcsize(planewave_fmt)
+
+    data = struct.unpack(planewave_fmt, f.read(planewave_size))
+
+    Planewave = {
+        "theta": data[0],
+        "phi": data[1],
+        "ei": data[2:5],
+        "hi": data[5:8],
+        "ri": data[8:11],
+        "r0": data[11:14],
+        "ai": data[14],
+        "pol": data[15],
+    }
+
+# ---- 読み込み確認 ----
+print("Title:", Title)
+print("Nx:", Nx)
+print("NN:", NN)
+print("Freq2:", Freq2)
+print("Zin shape:", Zin.shape)
+print("Planewave:", Planewave)
