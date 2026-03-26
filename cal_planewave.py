@@ -30,9 +30,9 @@ def cal_planewave(od, i, j, k):
     for idx in range(od.NFreq2):
         freq = freq + od.data["Freq2"][idx]
     freq = freq / od.NFreq2
-    Xn = od.data["Xn"]
-    Yn = od.data["Yn"]
-    Zn = od.data["Zn"]
+    Xn = od.data["Xc"]
+    Yn = od.data["Yc"]
+    Zn = od.data["Zc"]
     
     C0 = 3e8
     k0 = 2 * np.pi * freq / C0
@@ -50,7 +50,7 @@ def cal_planewave(od, i, j, k):
            (y - y0) * pw.ri[1] +    # planewave_data.ri[1] +
            (z - z0) * pw.ri[2])     # planewave_data.ri[2])
 
-    phs = np.exp(1j * k0 * rri)
+    phs = np.exp(-1j * k0 * rri)
 
     # Note: The ei and hi vectors are unit vectors for the field components.
     # They should be treated as complex values if they represent phase at the origin.
