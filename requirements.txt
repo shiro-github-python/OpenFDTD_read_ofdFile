@@ -57,6 +57,7 @@ nest-asyncio==1.6.0
 notebook-shim==0.2.4
 numpy==2.3.4
 packaging==25.0
+pandas==3.0.0
 pandocfilters==1.5.1
 parso==0.8.5
 pexpect==4.9.0
@@ -80,6 +81,7 @@ rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
 rfc3987-syntax==1.1.0
 rpds-py==0.28.0
+scipy==1.17.1
 send2trash==1.8.3
 setuptools==80.9.0
 six==1.17.0
