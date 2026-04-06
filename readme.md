@@ -11,9 +11,9 @@ $ source .venv/bin/activate
 $ uv pip install -r requirements.txt  
 ```
 ### Description of each file
-main code  
+***main code***  
 maindisp.py:    Read the data file and display the data. Read only ofd.out.  
   
-sub code  
+***sub code***  
 
 
