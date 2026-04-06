@@ -30,4 +30,4 @@ for ix in range(od.Nx):
             E[ix][iy][iz] = cal_Intensity(Ex, Ey, Ez)
 
 # disp data
-display_v2(E, display_res=30)
+display_v2(E, display_res=512)
