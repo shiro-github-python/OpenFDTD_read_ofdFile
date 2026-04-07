@@ -3,7 +3,7 @@ import numpy as np
 
 class Planewave_t:
     """
-    A class to hold planewave parameters, equivalent to the C struct planewave_t.
+    A class to hold planewave parameters.
     """
 
     def __init__(self, pw):
